@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Застосунок Андромед</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700&family=Manrope:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --bg:#EEF3F3; --surface:#FFFFFF; --surface2:#F3F7F7; --ink:#10222B; --muted:#58696F; --line:#D5E0E1;
+  --accent:#0E8C8C; --accent-ink:#FFFFFF; --accent-soft:#DDF1F0;
+  --ok:#23864F; --ok-soft:#E1F2E8; --warn:#A86F00; --warn-soft:#FBF0D6; --bad:#C4342A; --bad-soft:#FBE3E0;
+  --info:#3559C7; --info-soft:#E4EAFB;
+  --space:#0B1A2E; --star:#F3D27A;
+  --display:"Unbounded","Arial Black",sans-serif;
+  --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0A141B; --surface:#111F28; --surface2:#172A35; --ink:#E4EEF0; --muted:#93A6AD; --line:#233844;
+    --accent:#3CC4C0; --accent-ink:#06201F; --accent-soft:#12343A;
+    --ok:#4CC282; --ok-soft:#15291E; --warn:#E3AE3A; --warn-soft:#2D2413; --bad:#F06A5E; --bad-soft:#321A18;
+    --info:#7F9CFF; --info-soft:#1A2440; --space:#06111D;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0A141B; --surface:#111F28; --surface2:#172A35; --ink:#E4EEF0; --muted:#93A6AD; --line:#233844;
+  --accent:#3CC4C0; --accent-ink:#06201F; --accent-soft:#12343A;
+  --ok:#4CC282; --ok-soft:#15291E; --warn:#E3AE3A; --warn-soft:#2D2413; --bad:#F06A5E; --bad-soft:#321A18;
+  --info:#7F9CFF; --info-soft:#1A2440; --space:#06111D;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 var(--body)}
+[hidden]{display:none!important}
+.app{max-width:560px;margin:0 auto;padding:0 16px 104px}
+.app.wide{max-width:1040px}
+header.top{position:sticky;top:0;z-index:5;background:var(--bg);display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;color:inherit}
+.brand svg{width:32px;height:32px}
+.brand b{font:700 16px var(--display);letter-spacing:.06em}
+.brand small{display:block;font:600 10px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.spacer{flex:1}
+.demo{font-size:12px;color:var(--muted);background:var(--surface2);border:1px dashed var(--line);border-radius:10px;padding:8px 10px;margin:12px 0 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;background:var(--surface);flex-wrap:wrap}
+.seg button{border:0;background:transparent;color:var(--muted);font:700 12px var(--body);padding:7px 10px;cursor:pointer}
+.seg button.on{background:var(--ink);color:var(--bg)}
+h2{font:700 20px/1.2 var(--display);margin:0;letter-spacing:.01em;text-wrap:balance}
+h3{font:800 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0}
+.stack{display:flex;flex-direction:column;gap:16px}
+.sec{display:flex;flex-direction:column;gap:10px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.row{display:flex;align-items:center;gap:10px}
+.wrapr{flex-wrap:wrap}
+.between{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.num{font-variant-numeric:tabular-nums}
+.btn{font:700 14px var(--body);border-radius:10px;padding:9px 14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn:hover{border-color:var(--muted)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.danger{color:var(--bad);border-color:var(--bad)}
+.btn.ok{color:var(--ok);border-color:var(--ok)}
+.btn.sm{padding:6px 10px;font-size:13px}
+.btn.block{width:100%}
+.btn.armed{background:var(--bad);border-color:var(--bad);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.pill{display:inline-block;font:800 10.5px var(--body);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:99px;white-space:nowrap}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-acc{background:var(--accent-soft);color:var(--accent)}.p-info{background:var(--info-soft);color:var(--info)}.p-dim{background:var(--surface2);color:var(--muted)}
+input,select,textarea{font:15px var(--body);color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:9px;padding:9px 10px;width:100%;min-width:0}
+textarea{min-height:76px;resize:vertical}
+label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);font-weight:700;letter-spacing:.03em;flex:1;min-width:0}
+label.ck{display:flex;gap:8px;align-items:center;font-size:14px}
+label.ck input{width:auto}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choices{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.choice{text-align:left;font:600 14px var(--body);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:11px 12px;cursor:pointer;color:var(--ink)}
+.choice small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:2px}
+.choice.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);background:var(--accent-soft)}
+.choice:disabled{opacity:.4;cursor:not-allowed}
+.dates{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.dchip{flex:none;width:58px;text-align:center;font:600 12px var(--body);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 0;cursor:pointer;color:var(--ink)}
+.dchip b{display:block;font:700 18px var(--display);margin:2px 0}
+.dchip.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.dchip:disabled{opacity:.35;cursor:not-allowed}
+.slots{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:6px}
+.slot{font:700 14px var(--body);font-variant-numeric:tabular-nums;background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:8px 0;cursor:pointer;color:var(--ink)}
+.slot.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chosen{display:flex;align-items:center;gap:10px;background:var(--accent-soft);border-radius:12px;padding:10px 12px}
+.chosen b{flex:1}
+.item{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.item:first-child{border-top:0;padding-top:0}
+.item:last-child{padding-bottom:0}
+.item .t{font:700 15px var(--display);min-width:52px;font-variant-numeric:tabular-nums}
+.item .b{flex:1;min-width:0}
+.item .b b{display:block}
+.empty{color:var(--muted);text-align:center;padding:18px 8px;font-size:14px}
+.ava{width:42px;height:42px;border-radius:12px;flex:none;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font:700 16px var(--display)}
+.next{background:var(--space);color:#fff;border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px;position:relative;overflow:hidden}
+.next .when{font:700 30px/1.05 var(--display)}
+.next .muted{color:rgba(255,255,255,.65)}
+.next .pill{align-self:flex-start}
+.next::after{content:"";position:absolute;right:-30px;top:-30px;width:140px;height:140px;background:radial-gradient(circle,rgba(243,210,122,.35),transparent 70%)}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.stat small{display:block;font-size:12px;color:var(--muted);font-weight:700}
+.stat b{font:700 19px var(--display);font-variant-numeric:tabular-nums;white-space:nowrap}
+.stat i{font-style:normal;font-size:12px;font-weight:700}
+.up{color:var(--ok)}.down{color:var(--bad)}
+.bars{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;font-size:14px}
+.bars span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bars b{font-weight:700;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.bars i{grid-column:1/-1;display:block;height:6px;border-radius:3px;background:var(--accent);margin-bottom:8px;min-width:2px}
+.cols{display:flex;align-items:flex-end;gap:3px;height:120px}
+.cols div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;position:relative}
+.cols div.z{background:var(--line)}
+.sched{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}
+.dnav{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dnav b{font:700 16px var(--display);min-width:150px;text-align:center}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0)}
+nav.tabs .in{max-width:560px;margin:0 auto;display:flex}
+nav.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:700 11px var(--body);padding:8px 2px 10px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;position:relative;min-width:0}
+nav.tabs button svg{width:22px;height:22px}
+nav.tabs button.on{color:var(--accent)}
+nav.tabs .dot{position:absolute;top:6px;left:calc(50% + 8px);width:8px;height:8px;border-radius:50%;background:var(--bad)}
+.ov{position:fixed;inset:0;z-index:20;background:rgba(6,14,22,.55);display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:18px 16px calc(24px + env(safe-area-inset-bottom,0))}
+@media (min-width:700px){.ov{align-items:center}.sheet{border-radius:20px}}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:14px}
+.kv span{color:var(--muted)}
+.res{background:var(--surface2);border-radius:12px;padding:12px;font-size:14px;display:flex;flex-direction:column;gap:6px}
+.res b{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.res p{margin:0;white-space:pre-wrap}
+.toast{position:fixed;left:50%;bottom:86px;transform:translateX(-50%);z-index:30;background:var(--ink);color:var(--bg);font-weight:700;font-size:14px;padding:10px 16px;border-radius:12px;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.foot{margin-top:28px;text-align:center}
+@media (max-width:420px){.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app" id="app"></div>
+<nav class="tabs" id="tabs"><div class="in"></div></nav>
+<div id="ovRoot"></div>
+
+<script>
+// ================== ДОВІДНИКИ ==================
+const CENTER = { name: "Андромед", phone: "097-918-65-93", phoneIntl: "+380979186593", callHours: "9:00–16:00", address: "м. Покров, вул. Торгова, 58" };
+const SPECS = [
+  { id:"uzd", name:"УЗД-діагностика" },
+  { id:"trauma", name:"Травматолог" }, { id:"ped", name:"Педіатр" }, { id:"ther", name:"Терапевт" },
+  { id:"neuro", name:"Невропатолог" }, { id:"ent", name:"ЛОР" }, { id:"cardio", name:"Кардіолог" },
+  { id:"derm", name:"Дерматовенеролог" }, { id:"gyn", name:"Гінеколог" }, { id:"angio", name:"Ангіохірург" }
+];
+const STEP = 15;           // крок сітки запису, хв
+const DAYS_AHEAD = 14;     // на скільки днів уперед можна записатися
+const DOW = ["Пн","Вт","Ср","Чт","Пт","Сб","Нд"];
+const MON = ["січ","лют","бер","квіт","трав","черв","лип","серп","вер","жовт","лист","груд"];
+const STATUS = {
+  booked:    ["Очікує підтвердження", "p-warn"],
+  confirmed: ["Підтверджено", "p-acc"],
+  arrived:   ["У центрі", "p-info"],
+  done:      ["Прийом завершено", "p-ok"],
+  noshow:    ["Не з'явився", "p-bad"],
+  cancelled: ["Скасовано", "p-dim"]
+};
+const SRC = { online: "Онлайн", phone: "Телефон", desk: "Рецепція" };
+const PAY = { cash: "Готівка", terminal: "Термінал" };
+const ROLES = [["patient","Пацієнт"],["doctor","Лікар"],["admin","Адміністратор"],["owner","Власник"]];
+const TABS = {
+  patient: [["home","Головна","home"],["book","Запис","cal"],["visits","Мої візити","list"],["profile","Профіль","user"]],
+  doctor:  [["day","Мій день","cal"],["patients","Пацієнти","users"]],
+  admin:   [["sched","Розклад","cal"],["book","Записати","plus"],["patients","Пацієнти","users"],["cash","Каса","cash"]],
+  owner:   [["reports","Звіти","chart"],["sched","Розклад","cal"],["doctors","Лікарі","users"],["services","Послуги","list"]]
+};
+const ICO = {
+  home:'<path d="M3 11l9-7 9 7v9a1 1 0 01-1 1h-5v-6H9v6H4a1 1 0 01-1-1z"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  list:'<path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0116 0"/>',
+  users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0113 0M16 4.5a3.5 3.5 0 010 7M21.5 20a6.5 6.5 0 00-4-6"/>',
+  plus:'<circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/>',
+  cash:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
+  chart:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>'
+};
+const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICO[k]}</svg>`;
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const money = n => Math.round(n).toLocaleString("uk-UA") + " ₴";
+
+// ================== ЧАС (Київ) ==================
+function kyivNow() {
+  const p = new Intl.DateTimeFormat("en-CA", { timeZone:"Europe/Kyiv", year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false }).formatToParts(new Date());
+  const g = t => p.find(x => x.type === t).value;
+  return { date: `${g("year")}-${g("month")}-${g("day")}`, min: (+g("hour") % 24) * 60 + +g("minute") };
+}
+const today = () => kyivNow().date;
+function addDays(ds, n) { const d = new Date(ds + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+const dow = ds => new Date(ds + "T12:00:00Z").getUTCDay() || 7;
+const toMin = t => { const [h, m] = t.split(":").map(Number); return h * 60 + m; };
+const fromMin = m => String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+function fmtD(ds, long) {
+  const d = new Date(ds + "T12:00:00Z");
+  const s = `${DOW[dow(ds) - 1].toLowerCase()}, ${d.getUTCDate()} ${MON[d.getUTCMonth()]}`;
+  if (!long) return s;
+  const t = today();
+  return ds === t ? "Сьогодні, " + s : ds === addDays(t, 1) ? "Завтра, " + s : ds === addDays(t, -1) ? "Вчора, " + s : s;
+}
+function age(b) {
+  if (!b) return "";
+  const t = today(); let a = +t.slice(0, 4) - +b.slice(0, 4);
+  if (t.slice(5) < b.slice(5)) a--;
+  return a;
+}
+const ageStr = b => { const a = age(b); if (a === "") return ""; const l = a % 10, h = a % 100; return a + " " + (l === 1 && h !== 11 ? "рік" : l >= 2 && l <= 4 && (h < 12 || h > 14) ? "роки" : "років"); };
+
+// ================== ДЕМО-ДАНІ ==================
+const KEY = "andromed-v1";
+function rng(seed) { let s = seed; return () => (s = (s * 16807) % 2147483647) / 2147483647; }
+
+function makeDemo() {
+  const r = rng(20261102), pick = a => a[Math.floor(r() * a.length)];
+  const everyday = [1,2,3,4,5,6,7];
+  // ПІБ і дні лікарів УЗД та дерматовенеролога — з переліку послуг у центрі; решта ПІБ ще невідомі
+  const TBD = "ПІБ уточнюється";
+  const doctors = [
+    { id:"d1",  name:"Лозенко А.П.",    specs:["uzd","derm"], days:everyday, from:"09:00", to:"16:00", byAppt:true },
+    { id:"d2",  name:"Тиква Н.П.",      specs:["uzd"],    days:[3],      from:"09:00", to:"16:00", byAppt:true },
+    { id:"d3",  name:"Кучеровець А.В.", specs:["uzd"],    days:[4],      from:"09:00", to:"16:00", byAppt:true },
+    { id:"d4",  name:"Коваль Л.В.",     specs:["uzd"],    days:[6],      from:"09:00", to:"16:00", byAppt:true },
+    { id:"d5",  name:TBD, specs:["trauma"], days:everyday, from:"09:00", to:"16:00", byAppt:true },
+    { id:"d6",  name:TBD, specs:["ped"],    days:everyday, from:"09:00", to:"15:00" },
+    { id:"d7",  name:TBD, specs:["ther"],   days:everyday, from:"09:00", to:"15:00" },
+    { id:"d8",  name:TBD, specs:["neuro"],  days:everyday, from:"09:00", to:"16:00", byAppt:true },
+    { id:"d9",  name:TBD, specs:["ent"],    days:everyday, from:"09:00", to:"16:00", byAppt:true },
+    { id:"d10", name:TBD, specs:["cardio"], days:[6],      from:"09:00", to:"12:00" },
+    { id:"d11", name:TBD, specs:["gyn"],    days:[4],      from:"08:00", to:"13:00" },
+    { id:"d12", name:TBD, specs:["angio"],  days:[6],      from:"13:00", to:"18:00" }
+  ].map(d => ({ byAppt:false, active:true, ...d }));
+  let sid = 0;
+  // sv(спеціальність, назва, ціна дорослі, ціна діти | null, хв, УЗД?, extra)
+  const sv = (spec, name, price, kid, dur, us, extra) => ({ id:"s" + (++sid), spec, name, price, kid, dur, us: !!us, active:true, ...extra });
+  const CONS = [550, 500];   // «Консультація лікаря» з прайсу УЗД — для консультацій спеціалістів (припущення)
+  const services = [
+    // УЗД-діагностика (прайс центру)
+    sv("uzd","Консультація лікаря УЗД",550,500,30),
+    sv("uzd","УЗД органів черевної порожнини (ОЧП)",550,450,15,1),
+    sv("uzd","УЗД сечовидільної системи (нирки, сечовий міхур)",500,450,15,1),
+    sv("uzd","УЗД сечостатевої системи (нирки, передміхурова залоза)",550,500,15,1),
+    sv("uzd","УЗД ОЧП + сечовидільна система",700,650,30,1),
+    sv("uzd","УЗД ОЧП + сечостатева система",750,null,30,1),
+    sv("uzd","УЗД передміхурової залози + сечовий міхур",450,null,15,1),
+    sv("uzd","УЗД сечостатевої системи + органи калитки",800,null,30,1),
+    sv("uzd","УЗД органів калитки",550,450,15,1),
+    sv("uzd","УЗД плевральних порожнин",550,400,15,1),
+    sv("uzd","УЗД щитоподібної залози",450,null,15,1),
+    sv("uzd","Еластографія щитоподібної залози",800,null,30,1),
+    sv("uzd","Еластографія печінки",1000,null,30,1),
+    sv("uzd","УЗД органів малого таза",500,null,15,1),
+    sv("uzd","УЗД органів малого таза (TV)",550,null,15,1),
+    sv("uzd","УЗД молочних залоз",550,450,15,1),
+    sv("uzd","УЗД-скринінг вагітності",650,null,30,1),
+    sv("uzd","УЗД серця (ЕХО-КГ)",750,null,30,1),
+    sv("uzd","ДКС серця",300,250,15,1),
+    sv("uzd","ЕКГ",350,null,15),
+    sv("uzd","УЗД судин голови та шиї",750,650,30,1),
+    sv("uzd","УЗД судин верхніх кінцівок",700,null,30,1),
+    sv("uzd","УЗД артерій нижніх кінцівок",550,null,30,1),
+    sv("uzd","УЗД вен нижніх кінцівок",550,null,30,1,{ from:true }),
+    sv("uzd","УЗД артерій і вен нижніх кінцівок",900,null,45,1),
+    sv("uzd","УЗД суглобів",650,550,15,1),
+    sv("uzd","УЗД м'яких тканин",400,350,15,1),
+    sv("uzd","УЗД периферійних лімфовузлів",450,400,15,1),
+    sv("uzd","УЗД слинних залоз",400,350,15,1),
+    sv("uzd","УЗД-знімок (друк)",50,null,15,0,{ active:false }),
+    // спеціалісти
+    sv("trauma","Консультація травматолога",...CONS,30), sv("trauma","УЗД суглобів",650,550,15,1),
+    sv("ped","Консультація педіатра",...CONS,30), sv("ped","УЗД органів черевної порожнини (ОЧП)",550,450,15,1),
+    sv("ther","Консультація терапевта",...CONS,30), sv("ther","УЗД органів черевної порожнини (ОЧП)",550,450,15,1), sv("ther","УЗД щитоподібної залози",450,null,15,1),
+    sv("neuro","Консультація невропатолога",...CONS,30), sv("neuro","Діагностика нервової системи (ЦНС, ВНС)",4500,2500,60),
+    sv("neuro","УЗДГ хребта — поперековий відділ",850,650,30,1), sv("neuro","УЗДГ хребта — грудний відділ",650,500,30,1), sv("neuro","УЗДГ хребта — шийний відділ",500,400,30,1),
+    sv("neuro","УЗД судин голови та шиї",750,650,30,1),
+    sv("ent","Огляд і консультація ЛОР",...CONS,30), sv("ent","Лазеротерапія BTL-6000: лікування ЛОР-патології (гайморит без проколу, аденоїди, тонзиліт)",800,650,30),
+    sv("cardio","Консультація кардіолога",...CONS,30), sv("cardio","УЗД серця (ЕХО-КГ)",750,null,30,1), sv("cardio","ДКС серця",300,250,15,1), sv("cardio","ЕКГ",350,null,15),
+    sv("derm","Консультація дерматовенеролога",...CONS,30), sv("derm","Алерго-тест",6800,5000,60), sv("derm","Алерго-тест на анестетики (стоматологія)",1500,1000,30),
+    sv("gyn","Консультація гінеколога",...CONS,30), sv("gyn","УЗД органів малого таза",500,null,15,1), sv("gyn","УЗД органів малого таза (TV)",550,null,15,1),
+    sv("gyn","УЗД молочних залоз",550,450,15,1), sv("gyn","УЗД-скринінг вагітності",650,null,30,1),
+    sv("angio","Консультація ангіохірурга",...CONS,30), sv("angio","УЗД артерій нижніх кінцівок",550,null,30,1), sv("angio","УЗД вен нижніх кінцівок",550,null,30,1,{ from:true }),
+    sv("angio","УЗД артерій і вен нижніх кінцівок",900,null,45,1), sv("angio","УЗД судин верхніх кінцівок",700,null,30,1)
+  ];
+  const SUR = ["Шевченко","Бойко","Ковальчук","Марченко","Руденко","Мороз","Лисенко","Гончаренко","Павленко","Кузьменко","Захарченко","Петренко","Карпенко","Романенко","Клименко","Яковенко","Остапенко","Тарасенко","Білик","Гаврилюк","Данилюк","Савчук","Пономаренко","Іваненко","Литвин","Кравець","Ярошенко","Сидоренко","Головко","Кириленко"];
+  const FN = { f:["Юлія","Тетяна","Ірина","Світлана","Людмила","Вікторія","Алла","Катерина","Надія","Аліна","Ганна","Оксана","Марія","Дарина","Софія"], m:["Дмитро","Віктор","Максим","Артем","Олександр","Богдан","Роман","Денис","Михайло","Назар","Василь","Андрій","Марк","Тимур","Іван"] };
+  const names = ["Мельник Олена"], seen = new Set(names);
+  while (names.length < 90) {
+    const g = r() < .55 ? "f" : "m", n = pick(SUR) + " " + pick(FN[g]) + (names.length % 6 === 5 ? " (дит.)" : "");
+    if (!seen.has(n.replace(" (дит.)", ""))) { seen.add(n.replace(" (дит.)", "")); names.push(n); }
+  }
+  const patients = names.map((n, i) => {
+    const kid = n.includes("(дит.)");
+    const y = kid ? 2010 + Math.floor(r() * 15) : i === 0 ? 1986 : 1950 + Math.floor(r() * 54);
+    return {
+      id:"p" + (i + 1), no: i + 1, name: n.replace(" (дит.)", ""),
+      phone: "0" + pick(["50","66","67","68","93","95","96","97","98","99"]) + "-" + String(100 + Math.floor(r() * 900)) + "-" + String(10 + Math.floor(r() * 90)) + "-" + String(10 + Math.floor(r() * 90)),
+      birth: `${y}-${String(1 + Math.floor(r() * 12)).padStart(2,"0")}-${String(1 + Math.floor(r() * 28)).padStart(2,"0")}`,
+      gender: /[ая]$/.test(n.split(" ")[1]) ? "f" : "m", consent: true
+    };
+  });
+  // з якого дня (зсув від сьогодні) пацієнт уже ходить до центру — щоб у звітах були нові пацієнти
+  const join = {}; patients.forEach(p => join[p.id] = r() < .4 ? -62 : -62 + Math.floor(r() * 69));
+  const kids = patients.filter(p => age(p.birth) < 18), adults = patients.filter(p => p.id !== "p1" && age(p.birth) >= 18);
+  const pickPat = (pool, off) => { const ok = pool.filter(p => join[p.id] <= off); return pick(ok.length ? ok : pool); };
+  const RES = {
+    uzd:[["УЗД: розміри й структура органів у межах норми, вогнищевих змін не виявлено.","Контроль за потреби, консультація лікуючого лікаря."],["УЗД: дифузні зміни паренхіми печінки, жовчний міхур без конкрементів.","Дієта, консультація терапевта, повторне УЗД через 3 міс."],["УЗД щитоподібної залози: вузол правої частки 6 мм, TI-RADS 2.","Контроль УЗД через 12 міс."]],
+    trauma:[["Забій м'яких тканин колінного суглоба.","Холод перші 48 год, обмежити навантаження 7 днів, повторний огляд за потреби."],["Розтягнення зв'язок гомілковостопного суглоба I ст.","Еластичне бинтування, мазь з НПЗЗ, огляд через 10 днів."]],
+    ped:[["ГРВІ, легкий перебіг.","Пиття, промивання носа, контроль температури. Повторно — за погіршення."],["Здорова дитина. Розвиток відповідає віку.","Планове спостереження."]],
+    ther:[["Гастрит, загострення.","Дієта, повторне УЗД через 1 міс."],["Артеріальна гіпертензія I ст.","Контроль тиску щодня, консультація кардіолога."]],
+    neuro:[["Остеохондроз шийного відділу хребта, цервікалгія.","ЛФК, масаж, уникати переохолодження."],["Головний біль напруги.","Режим сну, контроль навантажень, повторно через 1 міс."]],
+    ent:[["Гострий риніт.","Сольові промивання, судинозвужувальні краплі не довше 5 днів."],["Хронічний тонзиліт, ремісія.","Огляд двічі на рік."]],
+    cardio:[["ЕХО-КГ: скоротлива функція збережена, ФВ 62%. Клапани без особливостей.","Контроль через 12 міс."],["Порушень ритму не виявлено.","Здоровий спосіб життя, контроль тиску."]],
+    derm:[["Атопічний дерматит.","Емоленти щодня, уникати подразників."],["Себорейний дерматит.","Лікувальний шампунь 2 р/тиж., повторно через 1 міс."]],
+    gyn:[["УЗД: органи малого таза без патології.","Плановий огляд раз на рік."],["Кіста правого яєчника 18 мм.","Контроль УЗД через 2 міс."]],
+    angio:[["Варикозне розширення вен нижніх кінцівок, ХВН I ст.","Компресійний трикотаж, контроль УЗД через 6 міс."],["Прохідність глибоких вен збережена.","Профілактика, рух."]]
+  };
+  const t = today(), now = kyivNow().min, appts = [];
+  let aid = 0;
+  for (let off = -62; off <= 9; off++) {
+    const date = addDays(t, off);
+    for (const d of doctors) {
+      if (!d.days.includes(dow(date))) continue;
+      const span = toMin(d.to) - toMin(d.from);
+      const want = Math.round((span / 60) * (off > 2 ? 0.35 : 0.8) * (0.4 + r()));
+      const svcs = services.filter(s => s.active && d.specs.includes(s.spec)), busy = [];
+      for (let k = 0; k < want; k++) {
+        const s = pick(svcs), dur = s.dur;
+        const cands = [];
+        for (let m = toMin(d.from); m + dur <= toMin(d.to); m += STEP)
+          if (!busy.some(([b, e]) => m < e && b < m + dur)) cands.push(m);
+        if (!cands.length) break;
+        const m = pick(cands), pat = pickPat(d.specs.includes("ped") ? kids : s.kid != null && r() < .12 ? kids : adults, off);
+        const a = { id:"a" + (++aid), date, time: fromMin(m), dur, doc:d.id, svc:s.id, pat:pat.id, src: r() < .45 ? "online" : r() < .75 ? "phone" : "desk", status:"confirmed", paid:null, res:null };
+        const x = r();
+        const past = off < 0 || (off === 0 && m + dur <= now);
+        if (past) a.status = x < .87 ? "done" : x < .94 ? "noshow" : "cancelled";
+        else if (off === 0 && m <= now) a.status = "arrived";
+        else if (a.src === "online" && off <= 2 && x < .3) a.status = "booked";
+        if (a.status === "done") {
+          const [diag, rec] = pick(RES[s.us && s.spec !== "cardio" ? "uzd" : s.spec]);
+          a.res = { compl: "", diag, rec, at: date };
+          a.paid = { m: r() < .55 ? "cash" : "terminal", amt: priceFor(s, pat), at: date };
+        }
+        if (a.status === "arrived" && r() < .5) a.paid = { m:"cash", amt:priceFor(s, pat), at:date };
+        if (a.status !== "cancelled") busy.push([m, m + dur]);
+        appts.push(a);
+      }
+    }
+  }
+  // «я» як пацієнт — Олена Коваль: два минулі прийоми й один майбутній
+  const me = "p1";
+  const svcOf = a => services.find(s => s.id === a.svc);
+  const adultOk = a => !/калит|передміх|сечостатев/.test(svcOf(a).name);   // «я» — жінка
+  const mine = [appts.find(a => a.status === "done" && a.date < addDays(t, -20) && a.doc === "d7"),
+                appts.find(a => a.status === "done" && a.date > addDays(t, -12) && a.doc === "d1" && adultOk(a)),
+                appts.find(a => a.status === "confirmed" && a.date > t && a.doc === "d1")].filter(Boolean);
+  mine.forEach(a => { a.pat = me; if (a.paid) a.paid.amt = svcOf(a).price; });
+  appts.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  return { v:2, created:t, doctors, services, patients, appts, seq:{ a:aid, p:patients.length, s:sid, d:doctors.length }, me:{ patient:me, doctor:"d1" } };
+}
+
+let S;
+function load() {
+  try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
+  if (!S || S.v !== 2) { S = makeDemo(); save(); }
+}
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+const doc = id => S.doctors.find(d => d.id === id);
+const svc = id => S.services.find(s => s.id === id);
+const pat = id => S.patients.find(p => p.id === id);
+const spec = id => SPECS.find(s => s.id === id);
+const appt = id => S.appts.find(a => a.id === id);
+const live = a => a.status !== "cancelled";
+// ціна для пацієнта: дитяча (до 18 років), якщо вона є в прайсі
+const priceFor = (s, p) => p && p.birth && age(p.birth) < 18 && s.kid != null ? s.kid : s.price;
+const priceStr = s => (s.from ? "від " : "") + money(s.price) + (s.kid != null ? ` · діти ${money(s.kid)}` : "");
+const docSpecs = d => d.specs.map(x => spec(x).name).join(", ");
+
+function slots(docId, date, dur, ignore) {
+  const d = doc(docId);
+  if (!d || !d.active || !d.days.includes(dow(date))) return [];
+  const n = kyivNow(), out = [];
+  const busy = S.appts.filter(a => a.doc === docId && a.date === date && live(a) && a.id !== ignore).map(a => [toMin(a.time), toMin(a.time) + a.dur]);
+  for (let m = toMin(d.from); m + dur <= toMin(d.to); m += STEP) {
+    if (date < n.date || (date === n.date && m <= n.min)) continue;
+    if (!busy.some(([s, e]) => m < e && s < m + dur)) out.push(fromMin(m));
+  }
+  return out;
+}
+function schedText(d) {
+  const days = d.days.length === 7 ? "щодня" : d.days.map(x => DOW[x - 1]).join(", ");
+  return `${days} · ${d.byAppt ? "за записом, " : ""}${d.from}–${d.to}`;
+}
+
+// ================== СТАН ІНТЕРФЕЙСУ ==================
+const ui = { role:"patient", tab:"home", date:null, wiz:{}, q:"", period:"30", sheet:null, visTab:"next" };
+try { Object.assign(ui, JSON.parse(localStorage.getItem("andromed-ui")) || {}); } catch (e) {}
+ui.sheet = null;
+function saveUi() { try { localStorage.setItem("andromed-ui", JSON.stringify({ role:ui.role, tab:ui.tab, period:ui.period })); } catch (e) {} }
+
+let toastT;
+function toast(msg) {
+  document.querySelector(".toast")?.remove();
+  const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.append(el);
+  clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2200);
+}
+
+// ================== СПІЛЬНІ ФРАГМЕНТИ ==================
+const pill = st => `<span class="pill ${STATUS[st][1]}">${STATUS[st][0]}</span>`;
+const initials = n => n.split(" ").slice(0, 2).map(w => w[0]).join("");
+const empty = t => `<div class="empty">${t}</div>`;
+function apptLine(a, opts = {}) {
+  const d = doc(a.doc), s = svc(a.svc), p = pat(a.pat);
+  const who = opts.showPat ? `${esc(p.name)} <span class="muted small">${ageStr(p.birth)}</span>` : esc(spec(s.spec).name);
+  const sub = opts.showPat ? esc(s.name) : `${esc(d.name)} · ${esc(s.name)}`;
+  return `<div class="item" data-a="openAppt" data-id="${a.id}">
+    <div class="t">${opts.showDate ? `<span class="small muted" style="display:block;font:600 12px var(--body)">${fmtD(a.date)}</span>` : ""}${a.time}</div>
+    <div class="b"><b>${who}</b><div class="small muted">${sub}</div>
+      <div class="row wrapr" style="gap:6px;margin-top:6px">${pill(a.status)}${opts.money && a.paid ? `<span class="pill p-ok">${money(a.paid.amt)}</span>` : ""}${opts.money && !a.paid && ["arrived","done"].includes(a.status) ? `<span class="pill p-warn">Не оплачено</span>` : ""}</div>
+    </div></div>`;
+}
+function dateNav() {
+  const d = ui.date || today();
+  return `<div class="dnav"><button class="btn sm" data-a="day" data-n="-1" aria-label="Попередній день">‹</button><b>${fmtD(d, true)}</b><button class="btn sm" data-a="day" data-n="1" aria-label="Наступний день">›</button>${d !== today() ? `<button class="btn sm" data-a="day" data-n="0">Сьогодні</button>` : ""}</div>`;
+}
+
+// ================== ЗАПИС (пацієнт і рецепція) ==================
+function viewBook() {
+  const w = ui.wiz, staff = ui.role !== "patient", t = today();
+  if (!staff) w.pat = S.me.patient;
+  const out = [];
+  out.push(`<h2>${staff ? "Записати пацієнта" : "Запис до лікаря"}</h2>`);
+
+  // 1. Пацієнт (лише рецепція)
+  if (staff) {
+    if (w.pat) {
+      const p = pat(w.pat);
+      out.push(`<div class="sec"><h3>Пацієнт</h3><div class="chosen"><b>${esc(p.name)} <span class="muted small">${esc(p.phone)}</span></b><button class="btn sm" data-a="wiz" data-k="pat" data-v="">Змінити</button></div></div>`);
+    } else if (w.newPat) {
+      out.push(`<div class="sec"><h3>Новий пацієнт</h3><div class="panel stack">
+        <label class="f">Прізвище та ім'я<input id="npName" autocomplete="off"></label>
+        <div class="grid2"><label class="f">Телефон<input id="npPhone" inputmode="tel" placeholder="0XX-XXX-XX-XX"></label><label class="f">Дата народження<input id="npBirth" type="date"></label></div>
+        <label class="ck"><input type="checkbox" id="npConsent"> Згода на обробку персональних даних отримана</label>
+        <div class="row"><button class="btn primary" data-a="newPat">Додати</button><button class="btn" data-a="wiz" data-k="newPat" data-v="">Скасувати</button></div></div></div>`);
+      return out.join("");
+    } else {
+      out.push(`<div class="sec"><h3>Пацієнт</h3><div class="row"><input id="patQ" placeholder="Пошук: прізвище або телефон" value="${esc(w.q || "")}" autocomplete="off"><button class="btn" data-a="wiz" data-k="newPat" data-v="1">Новий</button></div><div class="panel" id="patRes">${patResults(w.q)}</div></div>`);
+      return out.join("");
+    }
+  }
+
+  // 2. Спеціаліст
+  const specsOn = SPECS.filter(sp => S.doctors.some(d => d.active && d.specs.includes(sp.id)));
+  out.push(`<div class="sec"><h3>Спеціаліст</h3><div class="choices">${specsOn.map(sp => {
+    const ds = S.doctors.filter(d => d.active && d.specs.includes(sp.id));
+    return `<button class="choice${w.spec === sp.id ? " on" : ""}" data-a="wiz" data-k="spec" data-v="${sp.id}">${sp.name}<small>${ds.length > 1 ? `${ds.length} лікарі` : esc(schedText(ds[0]))}</small></button>`;
+  }).join("")}</div></div>`);
+  if (!w.spec) return out.join("");
+
+  // 3. Послуга
+  const svcs = S.services.filter(s => s.active && s.spec === w.spec);
+  out.push(`<div class="sec"><h3>Послуга</h3><div class="choices">${svcs.map(s =>
+    `<button class="choice${w.svc === s.id ? " on" : ""}" data-a="wiz" data-k="svc" data-v="${s.id}">${esc(s.name)}<small>${s.dur} хв · ${priceStr(s)}</small></button>`).join("")}</div></div>`);
+  if (!w.svc) return out.join("");
+
+  // 4. Лікар (якщо їх кілька)
+  const docs = S.doctors.filter(d => d.active && d.specs.includes(w.spec));
+  if (docs.length > 1) {
+    out.push(`<div class="sec"><h3>Лікар</h3><div class="choices">${docs.map(d =>
+      `<button class="choice${w.doc === d.id ? " on" : ""}" data-a="wiz" data-k="doc" data-v="${d.id}">${esc(d.name)}<small>${esc(schedText(d))}</small></button>`).join("")}</div></div>`);
+    if (!w.doc) return out.join("");
+  } else w.doc = docs[0].id;
+
+  // 5. Дата
+  const s = svc(w.svc), days = [];
+  for (let i = 0; i < DAYS_AHEAD; i++) { const ds = addDays(t, i); days.push([ds, slots(w.doc, ds, s.dur).length]); }
+  if (!w.date) { const f = days.find(x => x[1]); if (f) w.date = f[0]; }
+  out.push(`<div class="sec"><h3>Дата</h3><div class="dates">${days.map(([ds, n]) => {
+    const dd = new Date(ds + "T12:00:00Z");
+    return `<button class="dchip${w.date === ds ? " on" : ""}" data-a="wiz" data-k="date" data-v="${ds}" ${n ? "" : "disabled"}>${DOW[dow(ds) - 1]}<b>${dd.getUTCDate()}</b>${MON[dd.getUTCMonth()]}</button>`;
+  }).join("")}</div>${days.some(x => x[1]) ? "" : `<div class="empty">Найближчі ${DAYS_AHEAD} днів вільного часу немає. Зателефонуйте: ${CENTER.phone}</div>`}</div>`);
+  if (!w.date) return out.join("");
+
+  // 6. Час
+  const free = slots(w.doc, w.date, s.dur);
+  out.push(`<div class="sec"><h3>Час</h3>${free.length ? `<div class="slots">${free.map(tm => `<button class="slot${w.time === tm ? " on" : ""}" data-a="wiz" data-k="time" data-v="${tm}">${tm}</button>`).join("")}</div>` : empty("На цей день вільного часу немає")}</div>`);
+  if (!w.time || !free.includes(w.time)) return out.join("");
+
+  // 7. Підтвердження
+  const d = doc(w.doc);
+  out.push(`<div class="panel stack"><h3>Перевірте запис</h3><div class="kv">
+    ${staff ? `<span>Пацієнт</span><b>${esc(pat(w.pat).name)}</b>` : ""}
+    <span>Лікар</span><b>${esc(spec(s.spec).name)} — ${esc(d.name)}</b>
+    <span>Послуга</span><b>${esc(s.name)}</b>
+    <span>Коли</span><b>${fmtD(w.date, true)}, ${w.time} (${s.dur} хв)</b>
+    <span>Вартість</span><b>${s.from ? "від " : ""}${money(priceFor(s, pat(w.pat)))} <span class="muted small">${priceFor(s, pat(w.pat)) !== s.price ? "дитяча ціна · " : ""}оплата на місці</span></b></div>
+    ${staff ? `<div class="row"><span class="small muted">Джерело:</span><div class="seg">${["phone","desk"].map(k => `<button class="${(w.src || "phone") === k ? "on" : ""}" data-a="wiz" data-k="src" data-v="${k}">${SRC[k]}</button>`).join("")}</div></div>` : `<div class="small muted">Адміністратор підтвердить запис. Скасувати можна в «Мої візити».</div>`}
+    <button class="btn primary block" data-a="bookIt">Записатися</button></div>`);
+  return out.join("");
+}
+function patResults(q) {
+  q = (q || "").trim().toLowerCase();
+  const digits = q.replace(/\D/g, "");
+  const list = S.patients.filter(p => !q || p.name.toLowerCase().includes(q) || (digits.length >= 3 && p.phone.replace(/\D/g, "").includes(digits))).slice(0, 8);
+  return list.length ? list.map(p => `<div class="item" data-a="${ui.tab === "book" ? "pickPat" : "openPat"}" data-id="${p.id}"><div class="ava">${esc(initials(p.name))}</div><div class="b"><b>${esc(p.name)}</b><div class="small muted">${esc(p.phone)} · ${ageStr(p.birth)}</div></div></div>`).join("") : empty("Нікого не знайдено");
+}
+
+// ================== ПАЦІЄНТ ==================
+function viewPatientHome() {
+  const me = pat(S.me.patient), t = today(), n = kyivNow();
+  const mine = S.appts.filter(a => a.pat === me.id);
+  const next = mine.filter(a => ["booked","confirmed","arrived"].includes(a.status) && (a.date > t || (a.date === t && toMin(a.time) + a.dur > n.min - 60)))[0];
+  const results = mine.filter(a => a.res).reverse().slice(0, 3);
+  let h = `<div class="stack"><h2>Вітаємо, ${esc(me.name.split(" ")[1] || me.name)}!</h2>`;
+  if (next) {
+    const d = doc(next.doc), s = svc(next.svc);
+    h += `<div class="next" data-a="openAppt" data-id="${next.id}" style="cursor:pointer">${pill(next.status)}
+      <div class="muted small">Наступний візит</div>
+      <div class="when">${fmtD(next.date, true)}<br>${next.time}</div>
+      <div><b>${esc(spec(s.spec).name)}</b> — ${esc(d.name)}<div class="muted small">${esc(s.name)} · ${money(priceFor(s, me))}</div></div></div>`;
+  } else {
+    h += `<div class="panel stack"><b>Запланованих візитів немає</b><div class="muted small">Оберіть спеціаліста й зручний час — без черг і без контакту з хворими.</div><button class="btn primary" data-a="tab" data-v="book">Записатися до лікаря</button></div>`;
+  }
+  h += `<div class="row"><button class="btn primary" style="flex:1" data-a="tab" data-v="book">Новий запис</button><a class="btn" style="flex:1" href="tel:${CENTER.phoneIntl}">Подзвонити</a></div>`;
+  h += `<div class="sec"><h3>Останні висновки</h3><div class="panel">${results.length ? results.map(a => apptLine(a, { showDate:true })).join("") : empty("Після прийому тут з'явиться висновок лікаря")}</div></div>`;
+  h += `<div class="sec"><h3>Хто приймає сьогодні</h3><div class="panel">${S.doctors.filter(d => d.active && d.days.includes(dow(t))).flatMap(d => d.specs.map(sp => `<div class="item" data-a="bookSpec" data-id="${sp}"><div class="ava">${esc(spec(sp).name[0])}</div><div class="b"><b>${esc(spec(sp).name)}</b><div class="small muted">${esc(d.name)} · ${d.byAppt ? "за записом" : d.from + "–" + d.to}</div></div></div>`)).join("") || empty("Сьогодні прийому немає")}</div></div>`;
+  return h + `</div>`;
+}
+function viewPatientVisits() {
+  const t = today(), mine = S.appts.filter(a => a.pat === S.me.patient);
+  const up = mine.filter(a => a.date >= t && ["booked","confirmed","arrived"].includes(a.status));
+  const past = mine.filter(a => !up.includes(a)).reverse();
+  const list = ui.visTab === "next" ? up : past;
+  return `<div class="stack"><div class="row between"><h2>Мої візити</h2><div class="seg"><button class="${ui.visTab === "next" ? "on" : ""}" data-a="visTab" data-v="next">Майбутні</button><button class="${ui.visTab === "past" ? "on" : ""}" data-a="visTab" data-v="past">Минулі</button></div></div>
+    <div class="panel">${list.length ? list.map(a => apptLine(a, { showDate:true })).join("") : empty(ui.visTab === "next" ? "Запланованих візитів немає" : "Історія порожня")}</div></div>`;
+}
+function viewPatientProfile() {
+  const p = pat(S.me.patient);
+  return `<div class="stack"><h2>Профіль</h2><div class="panel stack">
+    <label class="f">Прізвище та ім'я<input id="prName" value="${esc(p.name)}"></label>
+    <div class="grid2"><label class="f">Телефон<input id="prPhone" value="${esc(p.phone)}" inputmode="tel"></label><label class="f">Дата народження<input id="prBirth" type="date" value="${esc(p.birth)}"></label></div>
+    <label class="f">Стать<select id="prGender"><option value="f" ${p.gender === "f" ? "selected" : ""}>Жіноча</option><option value="m" ${p.gender === "m" ? "selected" : ""}>Чоловіча</option></select></label>
+    <label class="f">Алергії, хронічні захворювання (бачить лікар)<textarea id="prNote">${esc(p.note || "")}</textarea></label>
+    <label class="ck"><input type="checkbox" checked disabled> Я погоджуюсь на обробку персональних даних, зокрема даних про здоров'я</label>
+    <button class="btn primary" data-a="saveProfile">Зберегти</button></div>
+    <div class="panel kv"><span>Центр</span><b>КДЦ «${CENTER.name}»</b><span>Запис</span><b><a href="tel:${CENTER.phoneIntl}">${CENTER.phone}</a>, ${CENTER.callHours}</b><span>Адреса</span><b>${CENTER.address}</b></div></div>`;
+}
+
+// ================== ЛІКАР ==================
+function viewDoctorDay() {
+  const d = doc(S.me.doctor), date = ui.date || today();
+  const list = S.appts.filter(a => a.doc === d.id && a.date === date && live(a));
+  const works = d.days.includes(dow(date));
+  const cnt = st => list.filter(a => st.includes(a.status)).length;
+  return `<div class="stack">
+    <div class="row wrapr"><span class="small muted">Ви увійшли як</span><select id="meDoc" style="width:auto;flex:1">${S.doctors.filter(x => x.active).map(x => `<option value="${x.id}" ${x.id === d.id ? "selected" : ""}>${esc(docSpecs(x))} — ${esc(x.name)}</option>`).join("")}</select></div>
+    ${dateNav()}
+    <div class="stats"><div class="stat"><small>Записів</small><b>${list.length}</b></div><div class="stat"><small>Очікують</small><b>${cnt(["booked","confirmed","arrived"])}</b></div><div class="stat"><small>Проведено</small><b>${cnt(["done"])}</b></div></div>
+    <div class="panel">${list.length ? list.map(a => apptLine(a, { showPat:true })).join("") : empty(works ? "Записів на цей день немає" : `Неробочий день (${esc(schedText(d))})`)}</div></div>`;
+}
+
+// ================== СПИСОК ПАЦІЄНТІВ ==================
+function viewPatients() {
+  const role = ui.role;
+  let pool = S.patients;
+  if (role === "doctor") { const ids = new Set(S.appts.filter(a => a.doc === S.me.doctor).map(a => a.pat)); pool = pool.filter(p => ids.has(p.id)); }
+  return `<div class="stack"><div class="row between"><h2>${role === "doctor" ? "Мої пацієнти" : "Пацієнти"}</h2><span class="muted small">${pool.length}</span></div>
+    <input id="listQ" placeholder="Пошук: прізвище або телефон" value="${esc(ui.q)}" autocomplete="off">
+    <div class="panel" id="listRes">${patList(pool, ui.q)}</div></div>`;
+}
+function patList(pool, q) {
+  q = (q || "").trim().toLowerCase(); const digits = q.replace(/\D/g, "");
+  const list = pool.filter(p => !q || p.name.toLowerCase().includes(q) || (digits.length >= 3 && p.phone.replace(/\D/g, "").includes(digits))).sort((a, b) => a.name.localeCompare(b.name, "uk"));
+  return list.length ? list.map(p => {
+    const last = S.appts.filter(a => a.pat === p.id && a.status === "done").pop();
+    return `<div class="item" data-a="openPat" data-id="${p.id}"><div class="ava">${esc(initials(p.name))}</div><div class="b"><b>${esc(p.name)}</b><div class="small muted">${esc(p.phone)} · ${ageStr(p.birth)}${last ? " · останній візит " + fmtD(last.date) : ""}</div></div></div>`;
+  }).join("") : empty("Нікого не знайдено");
+}
+
+// ================== РЕЦЕПЦІЯ ==================
+function viewSched() {
+  const date = ui.date || today();
+  const docs = S.doctors.filter(d => d.active && (d.days.includes(dow(date)) || S.appts.some(a => a.doc === d.id && a.date === date && live(a))));
+  const pend = S.appts.filter(a => a.status === "booked" && a.date >= today());
+  let h = `<div class="stack"><div class="row between wrapr"><h2>Розклад</h2>${dateNav()}</div>`;
+  if (pend.length) h += `<div class="sec"><h3>Онлайн-записи, що чекають підтвердження · ${pend.length}</h3><div class="panel">${pend.slice(0, 4).map(a => apptLine(a, { showPat:true, showDate:true })).join("")}${pend.length > 4 ? `<div class="small muted" style="padding-top:10px">і ще ${pend.length - 4} — у розкладі відповідних днів</div>` : ""}</div></div>`;
+  h += docs.length ? `<div class="sched">${docs.map(d => {
+    const list = S.appts.filter(a => a.doc === d.id && a.date === date && live(a));
+    const free = slots(d.id, date, 30).length;
+    return `<div class="panel"><div class="row between" style="margin-bottom:10px"><div><b>${esc(docSpecs(d))}</b><div class="small muted">${esc(d.name)} · ${d.from}–${d.to}</div></div><button class="btn sm" data-a="bookDoc" data-id="${d.id}" ${free ? "" : "disabled"} title="Записати до цього лікаря">+</button></div>
+      ${list.length ? list.map(a => apptLine(a, { showPat:true, money:true })).join("") : empty("Записів немає")}
+      <div class="small muted" style="margin-top:8px">${free ? `Вільних 30-хв вікон: ${free}` : "Вільного часу немає"}</div></div>`;
+  }).join("")}</div>` : `<div class="panel">${empty("Цього дня ніхто не приймає")}</div>`;
+  return h + `</div>`;
+}
+function viewCash() {
+  const date = ui.date || today();
+  const day = S.appts.filter(a => a.date === date);
+  const paid = day.filter(a => a.paid), unpaid = day.filter(a => !a.paid && ["arrived","done"].includes(a.status));
+  const sum = m => paid.filter(a => !m || a.paid.m === m).reduce((s, a) => s + a.paid.amt, 0);
+  return `<div class="stack"><div class="row between wrapr"><h2>Каса</h2>${dateNav()}</div>
+    <div class="stats"><div class="stat"><small>Усього</small><b>${money(sum())}</b></div><div class="stat"><small>Готівка</small><b>${money(sum("cash"))}</b></div><div class="stat"><small>Термінал</small><b>${money(sum("terminal"))}</b></div></div>
+    <div class="sec"><h3>Очікують оплату · ${unpaid.length}</h3><div class="panel">${unpaid.length ? unpaid.map(a => apptLine(a, { showPat:true, money:true })).join("") : empty("Усі прийоми оплачено")}</div></div>
+    <div class="sec"><h3>Оплати · ${paid.length}</h3><div class="panel">${paid.length ? paid.map(a => `<div class="item" data-a="openAppt" data-id="${a.id}"><div class="t">${a.time}</div><div class="b"><b>${esc(pat(a.pat).name)}</b><div class="small muted">${esc(svc(a.svc).name)}</div></div><div style="text-align:right"><b class="num">${money(a.paid.amt)}</b><div class="small muted">${PAY[a.paid.m]}</div></div></div>`).join("") : empty("Оплат немає")}</div></div></div>`;
+}
+
+// ================== ВЛАСНИК ==================
+function periodRange(p) {
+  const t = today();
+  if (p === "0") return [t, t];
+  if (p === "7") return [addDays(t, -6), t];
+  if (p === "30") return [addDays(t, -29), t];
+  if (p === "m") return [t.slice(0, 8) + "01", t];
+  if (p === "pm") { const f = addDays(t.slice(0, 8) + "01", -1); return [f.slice(0, 8) + "01", f]; }
+}
+function stats(from, to) {
+  const list = S.appts.filter(a => a.date >= from && a.date <= to);
+  const paid = list.filter(a => a.paid);
+  const rev = paid.reduce((s, a) => s + a.paid.amt, 0);
+  const done = list.filter(a => a.status === "done").length, noshow = list.filter(a => a.status === "noshow").length;
+  const firstVisit = {};
+  for (const a of S.appts) if (live(a) && !(a.pat in firstVisit)) firstVisit[a.pat] = a.date;
+  const newP = Object.values(firstVisit).filter(d => d >= from && d <= to).length;
+  return { list, paid, rev, done, noshow, cancelled: list.filter(a => a.status === "cancelled").length, avg: paid.length ? rev / paid.length : 0, noshowPct: done + noshow ? noshow / (done + noshow) * 100 : 0, newP };
+}
+function viewReports() {
+  const [from, to] = periodRange(ui.period);
+  const days = Math.round((new Date(to) - new Date(from)) / 864e5) + 1;
+  const st = stats(from, to), prev = stats(addDays(from, -days), addDays(from, -1));
+  const delta = (a, b, inv) => { if (!b) return ""; const p = (a - b) / b * 100; const good = inv ? p < 0 : p > 0; return `<i class="${Math.abs(p) < .5 ? "muted" : good ? "up" : "down"}">${p > 0 ? "+" : ""}${p.toFixed(0)}%</i>`; };
+  const group = (keyFn, valFn) => { const m = {}; for (const a of st.list) { const k = keyFn(a); if (k == null) continue; m[k] = (m[k] || 0) + valFn(a); } return Object.entries(m).sort((x, y) => y[1] - x[1]); };
+  const bars = (rows, fmt) => { const max = Math.max(1, ...rows.map(r => r[1])); return rows.length ? `<div class="bars">${rows.map(([k, v]) => `<span>${esc(k)}</span><b>${fmt(v)}</b><i style="width:${v / max * 100}%"></i>`).join("")}</div>` : empty("Даних немає"); };
+  const byDocRev = group(a => a.paid ? spec(svc(a.svc).spec).name : null, a => a.paid.amt);
+  const byDocCnt = group(a => a.status === "done" ? spec(svc(a.svc).spec).name : null, () => 1);
+  const bySvc = group(a => a.status === "done" ? svc(a.svc).name : null, () => 1).slice(0, 8);
+  const byMethod = group(a => a.paid ? PAY[a.paid.m] : null, a => a.paid.amt);
+  const bySrc = group(a => live(a) ? SRC[a.src] : null, () => 1);
+  const daily = []; for (let i = 0; i < days; i++) { const ds = addDays(from, i); daily.push([ds, st.paid.filter(a => a.date === ds).reduce((s, a) => s + a.paid.amt, 0)]); }
+  const dmax = Math.max(1, ...daily.map(x => x[1]));
+  return `<div class="stack"><div class="row between wrapr"><h2>Звіти</h2><div class="seg">${[["0","Сьогодні"],["7","7 днів"],["30","30 днів"],["m","Цей місяць"],["pm","Минулий"]].map(([k, l]) => `<button class="${ui.period === k ? "on" : ""}" data-a="period" data-v="${k}">${l}</button>`).join("")}</div></div>
+    <div class="small muted">${fmtD(from)} — ${fmtD(to)} · порівняння з попередніми ${days} дн.</div>
+    <div class="stats">
+      <div class="stat"><small>Виручка</small><b>${money(st.rev)}</b> ${delta(st.rev, prev.rev)}</div>
+      <div class="stat"><small>Прийомів проведено</small><b>${st.done}</b> ${delta(st.done, prev.done)}</div>
+      <div class="stat"><small>Середній чек</small><b>${money(st.avg)}</b> ${delta(st.avg, prev.avg)}</div>
+      <div class="stat"><small>Нових пацієнтів</small><b>${st.newP}</b> ${delta(st.newP, prev.newP)}</div>
+      <div class="stat"><small>Неявки</small><b>${st.noshowPct.toFixed(1)}%</b> <span class="small muted">${st.noshow}</span></div>
+      <div class="stat"><small>Скасовано</small><b>${st.cancelled}</b></div>
+    </div>
+    ${days > 1 ? `<div class="panel sec"><h3>Виручка по днях</h3><div class="cols">${daily.map(([ds, v]) => `<div class="${v ? "" : "z"}" style="height:${v / dmax * 100}%" title="${fmtD(ds)}: ${money(v)}"></div>`).join("")}</div><div class="row between small muted"><span>${fmtD(from)}</span><span>${fmtD(to)}</span></div></div>` : ""}
+    <div class="sched">
+      <div class="panel sec"><h3>Виручка за спеціалістами</h3>${bars(byDocRev, money)}</div>
+      <div class="panel sec"><h3>Прийоми за спеціалістами</h3>${bars(byDocCnt, v => v)}</div>
+      <div class="panel sec"><h3>Популярні послуги</h3>${bars(bySvc, v => v)}</div>
+      <div class="panel sec"><h3>Спосіб оплати</h3>${bars(byMethod, money)}<h3 style="margin-top:8px">Звідки записи</h3>${bars(bySrc, v => v)}</div>
+    </div>
+    <button class="btn" data-a="csv">Завантажити CSV за період</button></div>`;
+}
+function viewDoctors() {
+  return `<div class="stack"><div class="row between"><h2>Лікарі та графік</h2><button class="btn primary sm" data-a="editDoc" data-id="">+ Лікар</button></div>
+    <div class="panel">${S.doctors.map(d => `<div class="item" data-a="editDoc" data-id="${d.id}"><div class="ava">${esc(initials(d.name))}</div><div class="b"><b>${esc(d.name)}</b><div class="small muted">${esc(docSpecs(d))} · ${esc(schedText(d))}</div>${d.active ? "" : `<span class="pill p-dim" style="margin-top:6px">Не приймає</span>`}</div></div>`).join("")}</div></div>`;
+}
+function viewServices() {
+  return `<div class="stack"><h2>Послуги та ціни</h2><div class="small muted">Ціни — приклад. Тривалість визначає, скільки часу займає запис у розкладі лікаря.</div>
+    ${SPECS.map(sp => `<div class="sec"><div class="row between"><h3>${sp.name}</h3><button class="btn sm" data-a="editSvc" data-id="" data-spec="${sp.id}">+ Послуга</button></div><div class="panel">${S.services.filter(s => s.spec === sp.id).map(s => `<div class="item" data-a="editSvc" data-id="${s.id}"><div class="b"><b>${esc(s.name)}</b><div class="small muted">${s.dur} хв${s.active ? "" : " · не продається"}</div></div><div style="text-align:right"><b class="num">${s.from ? "від " : ""}${money(s.price)}</b>${s.kid != null ? `<div class="small muted num">діти ${money(s.kid)}</div>` : ""}</div></div>`).join("") || empty("Послуг немає")}</div></div>`).join("")}</div>`;
+}
+
+// ================== ВІКНА (sheet) ==================
+function sheetAppt(a) {
+  const d = doc(a.doc), s = svc(a.svc), p = pat(a.pat), role = ui.role, t = today();
+  const staff = role === "admin" || role === "owner";
+  const canMed = role === "doctor" || role === "patient";   // висновок бачать лише лікар і пацієнт
+  const btn = (act, label, cls = "", extra = "") => `<button class="btn ${cls}" data-a="${act}" data-id="${a.id}" ${extra}>${label}</button>`;
+  let acts = [];
+  if (role === "patient" && ["booked","confirmed"].includes(a.status)) acts.push(btn("cancelAppt", "Скасувати запис", "danger", "data-confirm"));
+  if (staff) {
+    if (a.status === "booked") acts.push(btn("setStatus", "Підтвердити", "primary", 'data-v="confirmed"'));
+    if (["booked","confirmed"].includes(a.status) && a.date === t) acts.push(btn("setStatus", "Пацієнт прийшов", "primary", 'data-v="arrived"'));
+    if (["booked","confirmed"].includes(a.status) && a.date <= t) acts.push(btn("setStatus", "Не з'явився", "", 'data-v="noshow" data-confirm'));
+    if (["booked","confirmed"].includes(a.status)) acts.push(btn("cancelAppt", "Скасувати", "danger", "data-confirm"));
+    if (live(a) && a.status !== "noshow" && !a.paid) acts.push(btn("pay", "Оплата: готівка", "ok", 'data-v="cash"'), btn("pay", "Оплата: термінал", "ok", 'data-v="terminal"'));
+    if (a.paid) acts.push(btn("unpay", "Скасувати оплату", "", "data-confirm"));
+  }
+  if (role === "doctor") {
+    if (["booked","confirmed"].includes(a.status) && a.date === t) acts.push(btn("setStatus", "Пацієнт прийшов", "primary", 'data-v="arrived"'));
+    if (["booked","confirmed"].includes(a.status) && a.date <= t) acts.push(btn("setStatus", "Не з'явився", "", 'data-v="noshow" data-confirm'));
+  }
+  const resForm = role === "doctor" && (a.status === "arrived" || (a.status === "done" && ui.editRes));
+  return `<div class="stack">
+    <div class="row between"><h2>${a.time}, ${fmtD(a.date)}</h2><button class="btn sm" data-a="close" aria-label="Закрити">✕</button></div>
+    <div class="row wrapr" style="gap:6px">${pill(a.status)}<span class="pill p-dim">${SRC[a.src]}</span>${a.paid ? `<span class="pill p-ok">Оплачено ${money(a.paid.amt)} · ${PAY[a.paid.m]}</span>` : ""}</div>
+    <div class="panel kv">
+      ${role !== "patient" ? `<span>Пацієнт</span><b><a href="#" data-a="openPat" data-id="${p.id}">${esc(p.name)}</a> <span class="muted small">${ageStr(p.birth)}</span></b><span>Телефон</span><b><a href="tel:${esc(p.phone.replace(/\D/g, ""))}">${esc(p.phone)}</a></b>` : ""}
+      <span>Лікар</span><b>${esc(spec(s.spec).name)} — ${esc(d.name)}</b>
+      <span>Послуга</span><b>${esc(s.name)}</b>
+      <span>Тривалість</span><b>${a.dur} хв (${a.time}–${fromMin(toMin(a.time) + a.dur)})</b>
+      <span>Вартість</span><b>${s.from ? "від " : ""}${money(priceFor(s, p))}${priceFor(s, p) !== s.price ? ` <span class="muted small">дитяча ціна</span>` : ""}</b>
+    </div>
+    ${role === "doctor" && p.note ? `<div class="res" style="background:var(--warn-soft)"><b>Важливо (зі слів пацієнта)</b><p>${esc(p.note)}</p></div>` : ""}
+    ${a.res && canMed && !resForm ? `<div class="res">${a.res.compl ? `<b>Скарги</b><p>${esc(a.res.compl)}</p>` : ""}<b>Висновок</b><p>${esc(a.res.diag)}</p><b>Рекомендації</b><p>${esc(a.res.rec)}</p></div>` : ""}
+    ${a.res && staff ? `<div class="small muted">Висновок лікаря внесено (зміст бачать лише лікар і пацієнт).</div>` : ""}
+    ${role === "doctor" && a.status === "done" && !ui.editRes ? `<button class="btn" data-a="editRes" data-id="${a.id}">Редагувати висновок</button>` : ""}
+    ${resForm ? `<div class="panel stack"><h3>${s.us ? "Протокол УЗД і висновок" : "Прийом"}</h3>
+      <label class="f">Скарги / анамнез<textarea id="rsCompl">${esc(a.res?.compl || "")}</textarea></label>
+      <label class="f">${s.us ? "Протокол і висновок УЗД" : "Діагноз / висновок"} *<textarea id="rsDiag">${esc(a.res?.diag || "")}</textarea></label>
+      <label class="f">Рекомендації *<textarea id="rsRec">${esc(a.res?.rec || "")}</textarea></label>
+      <button class="btn primary" data-a="saveRes" data-id="${a.id}">${a.status === "done" ? "Зберегти висновок" : "Завершити прийом"}</button></div>` : ""}
+    ${acts.length ? `<div class="row wrapr">${acts.join("")}</div>` : ""}
+    ${role === "patient" && a.status === "booked" ? `<div class="small muted">Адміністратор підтвердить запис. Якщо плани змінились — скасуйте, щоб час отримав інший пацієнт.</div>` : ""}
+  </div>`;
+}
+function sheetPat(p) {
+  const role = ui.role, list = S.appts.filter(a => a.pat === p.id && (role !== "doctor" || true)).slice().reverse();
+  const canMed = role === "doctor";
+  return `<div class="stack">
+    <div class="row between"><div class="row"><div class="ava">${esc(initials(p.name))}</div><div><h2>${esc(p.name)}</h2><div class="small muted">Картка №${String(p.no).padStart(4, "0")}</div></div></div><button class="btn sm" data-a="close" aria-label="Закрити">✕</button></div>
+    <div class="panel kv"><span>Телефон</span><b><a href="tel:${esc(p.phone.replace(/\D/g, ""))}">${esc(p.phone)}</a></b><span>Дата народження</span><b>${p.birth ? p.birth.split("-").reverse().join(".") + " (" + ageStr(p.birth) + ")" : "—"}</b><span>Стать</span><b>${p.gender === "f" ? "жіноча" : "чоловіча"}</b>${canMed && p.note ? `<span>Важливо</span><b>${esc(p.note)}</b>` : ""}</div>
+    ${role !== "doctor" ? `<button class="btn primary" data-a="bookFor" data-id="${p.id}">Записати на прийом</button>` : ""}
+    <div class="sec"><h3>Візити · ${list.length}</h3><div class="panel">${list.length ? list.map(a => {
+      const d = doc(a.doc);
+      return `<div class="item" data-a="openAppt" data-id="${a.id}"><div class="t"><span class="small muted" style="display:block;font:600 12px var(--body)">${fmtD(a.date)}</span>${a.time}</div><div class="b"><b>${esc(spec(svc(a.svc).spec).name)}</b><div class="small muted">${esc(svc(a.svc).name)} · ${esc(d.name)}</div>${canMed && a.res ? `<div class="small" style="margin-top:4px">${esc(a.res.diag)}</div>` : ""}<div style="margin-top:6px">${pill(a.status)}</div></div></div>`;
+    }).join("") : empty("Візитів ще не було")}</div></div></div>`;
+}
+function sheetDoc(d) {
+  const isNew = !d;
+  d = d || { id:"", name:"", specs:["uzd"], days:[1,2,3,4,5], from:"09:00", to:"15:00", byAppt:false, active:true };
+  return `<div class="stack"><div class="row between"><h2>${isNew ? "Новий лікар" : "Лікар"}</h2><button class="btn sm" data-a="close" aria-label="Закрити">✕</button></div>
+    <div class="panel stack">
+      <label class="f">ПІБ<input id="edName" value="${esc(d.name)}"></label>
+      <div class="f" style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);font-weight:700">Спеціальності (можна кілька)<div class="row wrapr" style="gap:6px">${SPECS.map(s => `<label class="ck" style="border:1px solid var(--line);border-radius:8px;padding:5px 8px;color:var(--ink)"><input type="checkbox" class="edSpec" value="${s.id}" ${d.specs.includes(s.id) ? "checked" : ""}>${s.name}</label>`).join("")}</div></div>
+      <div class="f" style="display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);font-weight:700">Дні прийому<div class="row wrapr" style="gap:6px">${DOW.map((n, i) => `<label class="ck" style="border:1px solid var(--line);border-radius:8px;padding:5px 8px;color:var(--ink)"><input type="checkbox" class="edDay" value="${i + 1}" ${d.days.includes(i + 1) ? "checked" : ""}>${n}</label>`).join("")}</div></div>
+      <div class="grid2"><label class="f">Початок<input id="edFrom" type="time" step="900" value="${d.from}"></label><label class="f">Кінець<input id="edTo" type="time" step="900" value="${d.to}"></label></div>
+      <label class="ck"><input type="checkbox" id="edAppt" ${d.byAppt ? "checked" : ""}> На сайті показувати «за записом»</label>
+      <label class="ck"><input type="checkbox" id="edActive" ${d.active ? "checked" : ""}> Приймає (доступний для запису)</label>
+      <button class="btn primary" data-a="saveDoc" data-id="${d.id}">Зберегти</button></div>
+    ${isNew ? "" : `<div class="small muted">Зміна графіка не скасовує вже зроблені записи — перевірте розклад.</div>`}</div>`;
+}
+function sheetSvc(s, specId) {
+  const isNew = !s;
+  s = s || { id:"", spec:specId, name:"", price:500, dur:30, us:false, active:true };
+  return `<div class="stack"><div class="row between"><h2>${isNew ? "Нова послуга" : "Послуга"}</h2><button class="btn sm" data-a="close" aria-label="Закрити">✕</button></div>
+    <div class="panel stack"><div class="small muted">${spec(s.spec).name}</div>
+      <label class="f">Назва<input id="esName" value="${esc(s.name)}"></label>
+      <div class="grid2"><label class="f">Ціна дорослі, ₴<input id="esPrice" type="number" min="0" step="10" value="${s.price}"></label>
+      <label class="f">Ціна діти, ₴ (порожньо — як дорослі)<input id="esKid" type="number" min="0" step="10" value="${s.kid ?? ""}"></label></div>
+      <label class="ck"><input type="checkbox" id="esFrom" ${s.from ? "checked" : ""}> Показувати «від» (ціна залежить від обсягу)</label>
+      <div class="grid2"><label class="f">Тривалість<select id="esDur">${[15,30,45,60].map(m => `<option value="${m}" ${m === s.dur ? "selected" : ""}>${m} хв</option>`).join("")}</select></label></div>
+      <label class="ck"><input type="checkbox" id="esUs" ${s.us ? "checked" : ""}> Ультразвукове дослідження (форма протоколу УЗД)</label>
+      <label class="ck"><input type="checkbox" id="esActive" ${s.active ? "checked" : ""}> Доступна для запису</label>
+      <button class="btn primary" data-a="saveSvc" data-id="${s.id}" data-spec="${s.spec}">Зберегти</button></div></div>`;
+}
+
+// ================== РЕНДЕР ==================
+function render() {
+  const role = ui.role;
+  if (!TABS[role].some(t => t[0] === ui.tab)) ui.tab = TABS[role][0][0];
+  const app = document.getElementById("app");
+  app.classList.toggle("wide", role === "admin" || role === "owner");
+  const views = {
+    "patient:home": viewPatientHome, "patient:book": viewBook, "patient:visits": viewPatientVisits, "patient:profile": viewPatientProfile,
+    "doctor:day": viewDoctorDay, "doctor:patients": viewPatients,
+    "admin:sched": viewSched, "admin:book": viewBook, "admin:patients": viewPatients, "admin:cash": viewCash,
+    "owner:reports": viewReports, "owner:sched": viewSched, "owner:doctors": viewDoctors, "owner:services": viewServices
+  };
+  app.innerHTML = `<header class="top"><a class="brand" href="../" title="Сайт центру">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="#0B1A2E"/><path d="M20 7l2.6 8.4L31 18l-8.4 2.6L20 29l-2.6-8.4L9 18l8.4-2.6z" fill="#F3D27A"/><circle cx="30" cy="30" r="1.6" fill="#fff"/></svg>
+      <span><b>АНДРОМЕД</b><small>діагностичний центр</small></span></a><span class="spacer"></span></header>
+    <div class="demo"><b>Демо</b> Роль: <div class="seg">${ROLES.map(([k, l]) => `<button class="${role === k ? "on" : ""}" data-a="role" data-v="${k}">${l}</button>`).join("")}</div></div>
+    ${views[role + ":" + ui.tab]()}
+    <div class="foot"><button class="btn sm" data-a="reset" data-confirm>Скинути демо-дані</button></div>`;
+  const pend = S.appts.filter(a => a.status === "booked" && a.date >= today()).length;
+  document.querySelector("#tabs .in").innerHTML = TABS[role].map(([k, l, i]) =>
+    `<button class="${ui.tab === k ? "on" : ""}" data-a="tab" data-v="${k}">${svg(i)}<span>${l}</span>${k === "sched" && pend ? `<i class="dot"></i>` : ""}</button>`).join("");
+  document.querySelector("#tabs .in").style.maxWidth = app.classList.contains("wide") ? "1040px" : "";
+  renderSheet();
+}
+function renderSheet() {
+  const root = document.getElementById("ovRoot"), sh = ui.sheet;
+  if (!sh) { root.innerHTML = ""; return; }
+  const body = sh.type === "appt" ? sheetAppt(appt(sh.id)) : sh.type === "pat" ? sheetPat(pat(sh.id)) : sh.type === "doc" ? sheetDoc(doc(sh.id)) : sheetSvc(svc(sh.id), sh.spec);
+  root.innerHTML = `<div class="ov" data-a="ovClose"><div class="sheet" role="dialog" aria-modal="true">${body}</div></div>`;
+}
+
+// ================== ДІЇ ==================
+function resetWiz(extra) { ui.wiz = { ...(extra || {}) }; }
+const armed = new WeakMap();
+document.addEventListener("click", e => {
+  const el = e.target.closest("[data-a]");
+  if (!el) return;
+  const a = el.dataset.a, id = el.dataset.id, v = el.dataset.v;
+  if (a === "ovClose" && e.target !== el) return;   // клік усередині вікна
+  if (el.tagName === "A" && el.getAttribute("href") === "#") e.preventDefault();
+  if (el.hasAttribute("data-confirm") && !armed.get(el)) {
+    armed.set(el, el.innerHTML); el.classList.add("armed"); el.textContent = "Точно? Ще раз";
+    setTimeout(() => { if (el.isConnected) { el.innerHTML = armed.get(el); el.classList.remove("armed"); armed.delete(el); } }, 3000);
+    return;
+  }
+  switch (a) {
+    case "role": ui.role = v; ui.tab = TABS[v][0][0]; ui.date = null; ui.q = ""; resetWiz(); break;
+    case "tab": ui.tab = v; ui.q = ""; if (v === "book") resetWiz(); break;
+    case "day": ui.date = v === "0" || el.dataset.n === "0" ? null : addDays(ui.date || today(), +el.dataset.n); if (ui.date === today()) ui.date = null; break;
+    case "visTab": ui.visTab = v; break;
+    case "period": ui.period = v; break;
+    case "wiz": {
+      const w = ui.wiz, k = el.dataset.k;
+      w[k] = v || null;
+      const order = ["pat","spec","svc","doc","date","time"], i = order.indexOf(k);
+      if (i >= 0) order.slice(i + 1).forEach(x => { if (!(x === "date" && k === "time")) delete w[x]; });
+      if (k === "pat" && !v) { delete w.newPat; }
+      break;
+    }
+    case "pickPat": ui.wiz.pat = id; delete ui.wiz.q; break;
+    case "newPat": {
+      const name = npName.value.trim(), phone = npPhone.value.trim();
+      if (name.length < 3 || phone.replace(/\D/g, "").length < 10) { toast("Вкажіть ім'я і телефон (10 цифр)"); return; }
+      if (!npConsent.checked) { toast("Потрібна згода на обробку даних"); return; }
+      const dup = S.patients.find(p => p.phone.replace(/\D/g, "") === phone.replace(/\D/g, ""));
+      if (dup) { ui.wiz = { pat: dup.id }; toast("Пацієнт з цим номером уже є — обрано"); break; }
+      const p = { id:"p" + (++S.seq.p), no:S.seq.p, name, phone, birth:npBirth.value, gender:"f", consent:true };
+      S.patients.push(p); save(); ui.wiz = { pat:p.id }; toast("Пацієнта додано"); break;
+    }
+    case "bookIt": {
+      const w = ui.wiz, s = svc(w.svc), staff = ui.role !== "patient";
+      if (!slots(w.doc, w.date, s.dur).includes(w.time)) { toast("Цей час щойно зайняли — оберіть інший"); delete w.time; break; }
+      const ap = { id:"a" + (++S.seq.a), date:w.date, time:w.time, dur:s.dur, doc:w.doc, svc:s.id, pat:w.pat, src: staff ? (w.src || "phone") : "online", status: staff ? "confirmed" : "booked", paid:null, res:null };
+      S.appts.push(ap); S.appts.sort((x, y) => (x.date + x.time).localeCompare(y.date + y.time)); save();
+      toast(staff ? "Пацієнта записано" : "Запис створено — чекайте підтвердження");
+      resetWiz();
+      if (staff) { ui.tab = "sched"; ui.date = ap.date === today() ? null : ap.date; } else ui.tab = "home";
+      break;
+    }
+    case "bookSpec": ui.tab = "book"; resetWiz({ spec:id }); break;
+    case "bookDoc": { const d = doc(id); ui.tab = "book"; resetWiz({ spec:d.specs[0], doc:d.id, date: ui.date || today() }); break; }
+    case "bookFor": ui.sheet = null; ui.tab = "book"; resetWiz({ pat:id }); break;
+    case "openAppt": ui.sheet = { type:"appt", id }; ui.editRes = false; break;
+    case "openPat": ui.sheet = { type:"pat", id }; break;
+    case "editDoc": ui.sheet = { type:"doc", id }; break;
+    case "editSvc": ui.sheet = { type:"svc", id, spec: el.dataset.spec }; break;
+    case "close": case "ovClose": ui.sheet = null; break;
+    case "setStatus": appt(id).status = v; save(); toast(STATUS[v][0]); break;
+    case "cancelAppt": appt(id).status = "cancelled"; save(); toast("Запис скасовано"); ui.sheet = null; break;
+    case "pay": { const x = appt(id); x.paid = { m:v, amt:priceFor(svc(x.svc), pat(x.pat)), at:today() }; save(); toast("Оплату прийнято"); break; }
+    case "unpay": appt(id).paid = null; save(); toast("Оплату скасовано"); break;
+    case "editRes": ui.editRes = true; break;
+    case "saveRes": {
+      const diag = rsDiag.value.trim(), rec = rsRec.value.trim();
+      if (diag.length < 3 || rec.length < 3) { toast("Заповніть висновок і рекомендації"); return; }
+      const x = appt(id); x.res = { compl: rsCompl.value.trim(), diag, rec, at: today() }; x.status = "done"; ui.editRes = false; save();
+      toast("Прийом завершено — висновок доступний пацієнту"); break;
+    }
+    case "saveProfile": {
+      const p = pat(S.me.patient);
+      Object.assign(p, { name: prName.value.trim() || p.name, phone: prPhone.value.trim() || p.phone, birth: prBirth.value, gender: prGender.value, note: prNote.value.trim() });
+      save(); toast("Збережено"); break;
+    }
+    case "saveDoc": {
+      const days = [...document.querySelectorAll(".edDay:checked")].map(x => +x.value);
+      const specs = [...document.querySelectorAll(".edSpec:checked")].map(x => x.value);
+      const data = { name: edName.value.trim(), specs, days, from: edFrom.value, to: edTo.value, byAppt: edAppt.checked, active: edActive.checked };
+      if (data.name.length < 3) { toast("Вкажіть ПІБ"); return; }
+      if (!specs.length) { toast("Оберіть спеціальність"); return; }
+      if (!days.length || !data.from || !data.to || data.from >= data.to) { toast("Перевірте дні й години прийому"); return; }
+      if (id) Object.assign(doc(id), data); else S.doctors.push({ id:"d" + (++S.seq.d), ...data });
+      save(); ui.sheet = null; toast("Збережено"); break;
+    }
+    case "saveSvc": {
+      const data = { name: esName.value.trim(), price: Math.max(0, +esPrice.value || 0), kid: esKid.value === "" ? null : Math.max(0, +esKid.value), from: esFrom.checked, dur: +esDur.value, us: esUs.checked, active: esActive.checked };
+      if (data.name.length < 3) { toast("Вкажіть назву"); return; }
+      if (id) Object.assign(svc(id), data); else S.services.push({ id:"s" + (++S.seq.s), spec: el.dataset.spec, ...data });
+      save(); ui.sheet = null; toast("Збережено"); break;
+    }
+    case "csv": {
+      const [from, to] = periodRange(ui.period);
+      const rows = [["Дата","Час","Спеціаліст","Лікар","Послуга","Пацієнт","Статус","Джерело","Оплата","Сума"]];
+      for (const x of S.appts.filter(q => q.date >= from && q.date <= to)) { const d = doc(x.doc); rows.push([x.date, x.time, spec(svc(x.svc).spec).name, d.name, svc(x.svc).name, pat(x.pat).name, STATUS[x.status][0], SRC[x.src], x.paid ? PAY[x.paid.m] : "", x.paid ? x.paid.amt : ""]); }
+      const csv = "﻿" + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(";")).join("\r\n");
+      const link = document.createElement("a"); link.href = URL.createObjectURL(new Blob([csv], { type:"text/csv" })); link.download = `andromed_${from}_${to}.csv`; link.click();
+      return;
+    }
+    case "reset": S = makeDemo(); save(); ui.sheet = null; resetWiz(); toast("Демо-дані оновлено"); break;
+    default: return;
+  }
+  saveUi(); render();
+});
+document.addEventListener("input", e => {
+  if (e.target.id === "patQ") { ui.wiz.q = e.target.value; patRes.innerHTML = patResults(e.target.value); }
+  if (e.target.id === "listQ") {
+    ui.q = e.target.value;
+    let pool = S.patients;
+    if (ui.role === "doctor") { const ids = new Set(S.appts.filter(a => a.doc === S.me.doctor).map(a => a.pat)); pool = pool.filter(p => ids.has(p.id)); }
+    listRes.innerHTML = patList(pool, ui.q);
+  }
+});
+document.addEventListener("change", e => {
+  if (e.target.id === "meDoc") { S.me.doctor = e.target.value; save(); render(); }
+});
+document.addEventListener("keydown", e => { if (e.key === "Escape" && ui.sheet) { ui.sheet = null; render(); } });
+
+load();
+if (location.hash === "#book") { ui.role = "patient"; ui.tab = "book"; resetWiz(); history.replaceState(null, "", location.pathname); }
+render();
+</script>
+</body>
+</html>
