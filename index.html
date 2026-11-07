@@ -399,7 +399,8 @@ const svg = k => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
 let lang = "uk";
-try { lang = localStorage.getItem("andromed-lang") || (navigator.language || "").startsWith("ru") && "ru" || "uk"; } catch (e) {}
+// за замовчуванням — українська; російська лише якщо відвідувач сам її обрав
+try { lang = localStorage.getItem("andromed-lang") === "ru" ? "ru" : "uk"; } catch (e) {}
 
 // день тижня за Києвом: 1 = Пн … 7 = Нд
 function kyivDow() {
